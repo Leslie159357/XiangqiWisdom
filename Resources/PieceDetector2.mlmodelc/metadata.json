@@ -1,0 +1,143 @@
+[
+  {
+    "metadataOutputVersion" : "3.0",
+    "userDefinedMetadata" : {
+      "IoU threshold" : "0.7",
+      "stride" : "32",
+      "Confidence threshold" : "0.25",
+      "channels" : "3",
+      "task" : "detect",
+      "docs" : "https:\/\/docs.ultralytics.com",
+      "imgsz" : "[640, 640]",
+      "date" : "2025-06-03T15:13:19.574174",
+      "args" : "{'batch': 1, 'half': True, 'int8': False, 'nms': True}",
+      "batch" : "1",
+      "names" : "{0: 'bc', 1: 'rc', 2: 'bh', 3: 'rh', 4: 'be', 5: 're', 6: 'bg', 7: 'rg', 8: 'bk', 9: 'rk', 10: 'bp', 11: 'rp', 12: 'bs', 13: 'rs', 14: 'ph'}"
+    },
+    "classLabels" : [
+      "bc",
+      "rc",
+      "bh",
+      "rh",
+      "be",
+      "re",
+      "bg",
+      "rg",
+      "bk",
+      "rk",
+      "bp",
+      "rp",
+      "bs",
+      "rs",
+      "ph"
+    ],
+    "availability" : {
+      "macOS" : "11.0",
+      "tvOS" : "14.0",
+      "visionOS" : "1.0",
+      "watchOS" : "7.0",
+      "iOS" : "14.0",
+      "macCatalyst" : "14.0"
+    },
+    "inputSchema" : [
+      {
+        "height" : "640",
+        "colorspace" : "RGB",
+        "isOptional" : "0",
+        "width" : "640",
+        "isColor" : "1",
+        "formattedType" : "Image (Color 640 × 640)",
+        "hasSizeFlexibility" : "0",
+        "type" : "Image",
+        "shortDescription" : "Input image",
+        "name" : "image"
+      },
+      {
+        "isOptional" : "0",
+        "formattedType" : "Double",
+        "type" : "Double",
+        "name" : "iouThreshold",
+        "shortDescription" : "(optional) IoU threshold override (default: 0.7)"
+      },
+      {
+        "isOptional" : "0",
+        "formattedType" : "Double",
+        "type" : "Double",
+        "name" : "confidenceThreshold",
+        "shortDescription" : "(optional) Confidence threshold override (default: 0.25)"
+      }
+    ],
+    "outputSchema" : [
+      {
+        "dataType" : "Float32",
+        "hasShapeFlexibility" : "1",
+        "isOptional" : "0",
+        "shapeFlexibility" : "0... × 15",
+        "shapeRange" : "[[0, -1], [15, 15]]",
+        "formattedType" : "MultiArray (Float32 0 × 15)",
+        "type" : "MultiArray",
+        "shape" : "[0, 15]",
+        "name" : "confidence",
+        "shortDescription" : "Boxes × Class confidence (see user-defined metadata \"classes\")"
+      },
+      {
+        "dataType" : "Float32",
+        "hasShapeFlexibility" : "1",
+        "isOptional" : "0",
+        "shapeFlexibility" : "0... × 4",
+        "shapeRange" : "[[0, -1], [4, 4]]",
+        "formattedType" : "MultiArray (Float32 0 × 4)",
+        "type" : "MultiArray",
+        "shape" : "[0, 4]",
+        "name" : "coordinates",
+        "shortDescription" : "Boxes × [x, y, width, height] (relative to image size)"
+      }
+    ],
+    "modelParameters" : [
+
+    ],
+    "storagePrecision" : "Float16",
+    "neuralNetworkLayerTypeHistogram" : {
+      "Concat" : 19,
+      "Convolution" : 120,
+      "Transpose" : 50,
+      "ReshapeStatic" : 37,
+      "UpsampleINVALID" : 2,
+      "MultiplyBroadcastable" : 1,
+      "LoadConstantND" : 2,
+      "ActivationSigmoid" : 82,
+      "Softmax" : 1,
+      "SplitND" : 14,
+      "SliceStatic" : 1,
+      "Multiply" : 91,
+      "Add" : 38,
+      "ConcatND" : 3,
+      "SoftmaxND" : 8,
+      "ActivationLinear" : 2,
+      "BatchedMatmul" : 16
+    },
+    "method" : "predict",
+    "version" : "8.3.127",
+    "isUpdatable" : "0",
+    "specificationVersion" : 5,
+    "stateSchema" : [
+
+    ],
+    "computePrecision" : "Float16",
+    "shortDescription" : "Ultralytics YOLOv12n model trained on ..\/piece_detect\/yolo.yaml",
+    "license" : "AGPL-3.0 License (https:\/\/ultralytics.com\/license)",
+    "generatedClassName" : "PieceDetector2",
+    "author" : "Ultralytics",
+    "modelType" : {
+      "name" : "MLModelType_pipeline",
+      "structure" : [
+        {
+          "name" : "MLModelType_neuralNetwork"
+        },
+        {
+          "name" : "MLModelType_nonMaximumSuppression"
+        }
+      ]
+    }
+  }
+]

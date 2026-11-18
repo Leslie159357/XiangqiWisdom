@@ -92,13 +92,19 @@ final class SettingsViewController: UIViewController, UITableViewDataSource, UIT
         tableView.deselectRow(at: indexPath, animated: true)
         switch rows[indexPath.row].title {
         case "对局推演":
-            runDemo()
+            openRecognition()
         case "语音提示":
             voice.say("语音提示已开启")
             toast("语音提示：开")
         default:
             toast(rows[indexPath.row].detail.isEmpty ? rows[indexPath.row].title : rows[indexPath.row].detail)
         }
+    }
+
+    private func openRecognition() {
+        let vc = RecognitionViewController()
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
     }
 
     private func runDemo() {
