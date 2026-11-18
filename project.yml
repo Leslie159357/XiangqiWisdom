@@ -12,6 +12,10 @@ targets:
       - path: Sources
       - path: Resources
         buildPhase: resources
+      - path: Pikafish/src
+        excludes:
+          - "main.cpp"
+          - "benchmark.cpp"
     info:
       path: Sources/Info.plist
       properties:
@@ -35,6 +39,9 @@ targets:
         CODE_SIGNING_ALLOWED: NO
         CODE_SIGNING_REQUIRED: NO
         CODE_SIGN_IDENTITY: ""
+        CLANG_CXX_LANGUAGE_STANDARD: "c++20"
+        HEADER_SEARCH_PATHS: "$(SRCROOT)/Pikafish/src"
+        SWIFT_OBJC_BRIDGING_HEADER: "$(SRCROOT)/Sources/BridgingHeader.h"
 schemes:
   XiangqiWisdom:
     build:

@@ -12,10 +12,30 @@ final class EngineBridge {
     /// 自建网关，示例：https://your-host/bestmove
     var remoteURL: URL?
 
+    private lazy var local: PikafishEngine = {
+        let engine = PikafishEngine.shared
+        engine.initialize()
+        return engine
+    }()
+
     /// 演示用开局着法（红方先行）
     private let demoMoves = ["炮二平五", "马八进七", "兵三进一", "相三进五"]
 
     func bestMove(fen: String, depth: Int = 16, completion: @escaping (Result<String, Error>) -> Void) {
+        if local.ready {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let move = self.local.bestMove(fen: fen, depth: depth)
+                DispatchQueue.main.async {
+                    if let move = move {
+                        completion(.success(move))
+                    } else {
+                        completion(.failure(NSError(domain: "Pikafish", code: -3,
+                                                    userInfo: [NSLocalizedDescriptionKey: "本地引擎未返回着法"])))
+                    }
+                }
+            }
+            return
+        }
         guard let url = remoteURL else {
             let move = demoMoves.randomElement() ?? "炮二平五"
             completion(.success(move))
