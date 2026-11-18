@@ -20,11 +20,12 @@ targets:
     dependencies:
       - target: BroadcastExtension
         embed: true
+      - sdk: libsqlite3.tbd
     info:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: 象棋智囊
-        CFBundleShortVersionString: "0.1.0"
+        CFBundleShortVersionString: "0.5.0"
         CFBundleVersion: "1"
         UILaunchScreen: {}
         UIBackgroundModes:

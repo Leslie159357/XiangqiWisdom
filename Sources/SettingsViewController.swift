@@ -16,6 +16,7 @@ final class SettingsViewController: UIViewController, UITableViewDataSource, UIT
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 0.33, green: 0.22, blue: 0.13, alpha: 1)
+        OpeningBook.shared.open()
 
         table.backgroundColor = .clear
         table.dataSource = self
@@ -97,7 +98,8 @@ final class SettingsViewController: UIViewController, UITableViewDataSource, UIT
             voice.say("语音提示已开启")
             toast("语音提示：开")
         default:
-            toast(rows[indexPath.row].detail.isEmpty ? rows[indexPath.row].title : rows[indexPath.row].detail)
+            let book = OpeningBook.shared.summary()
+            toast(book)
         }
     }
 
