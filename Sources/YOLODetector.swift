@@ -44,8 +44,8 @@ final class YOLODetector {
         let coordDims = coordinates.shape
         let confBatched = confDims.count == 3
         let coordBatched = coordDims.count == 3
-        let nConf = confBatched ? confDims[1] : confDims[0]
-        let nCoord = coordBatched ? coordDims[1] : coordDims[0]
+        let nConf = Int(truncating: confBatched ? confDims[1] : confDims[0])
+        let nCoord = Int(truncating: coordBatched ? coordDims[1] : coordDims[0])
         let n = min(nConf, nCoord)
         NSLog("[YOLO] conf=%@ coord=%@ n=%d", "\(confDims)", "\(coordDims)", n)
         guard n > 0 else { return [] }
