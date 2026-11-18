@@ -16,6 +16,7 @@ targets:
         excludes:
           - "main.cpp"
           - "benchmark.cpp"
+          - "universal/*"
     info:
       path: Sources/Info.plist
       properties:
