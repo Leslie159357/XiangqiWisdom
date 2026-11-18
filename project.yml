@@ -28,6 +28,8 @@ targets:
         CFBundleShortVersionString: "0.5.0"
         CFBundleVersion: "1"
         UILaunchScreen: {}
+        NSPhotoLibraryUsageDescription: 选择棋盘截图用于本地识别，不上传
+        NSCameraUsageDescription: 拍摄棋盘用于本地识别，不上传
         UIBackgroundModes:
           - audio
         UIApplicationSceneManifest:
