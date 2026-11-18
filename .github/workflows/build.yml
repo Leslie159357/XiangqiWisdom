@@ -1,0 +1,42 @@
+# Build unsigned IPA on GitHub Actions (no Mac required)
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project XiangqiWisdom.xcodeproj \
+            -scheme XiangqiWisdom \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            -quiet
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$RUNNER_TEMP/App.xcarchive/Products/Applications/XiangqiWisdom.app" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP" && zip -qry XiangqiWisdom-unsigned.ipa Payload
+          ls -lh XiangqiWisdom-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: XiangqiWisdom-unsigned
+          path: ${{ runner.temp }}/XiangqiWisdom-unsigned.ipa

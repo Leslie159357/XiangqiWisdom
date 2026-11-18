@@ -1,0 +1,5 @@
+Sources/Info.plist
+*.xcodeproj
+*.xcworkspace
+.build/
+.DS_Store

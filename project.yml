@@ -1,0 +1,42 @@
+name: XiangqiWisdom
+options:
+  bundleIdPrefix: io.leslie
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+targets:
+  XiangqiWisdom:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: 象棋智囊
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - audio
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: XiangqiWisdom.SceneDelegate
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.leslie.xiangqiwisdom
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
+schemes:
+  XiangqiWisdom:
+    build:
+      targets:
+        XiangqiWisdom: all
+    run:
+      config: Debug
