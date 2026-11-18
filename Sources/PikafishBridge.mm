@@ -24,8 +24,8 @@ extern "C" int pf_init(const char* nnuePath, int threads, int hashMB) {
     if (g_inited) return 0;
 
     g_engine = std::make_unique<Engine>(std::nullopt);
-    g_engine->get_options()["Threads"] = std::to_string(threads);
-    g_engine->get_options()["Hash"] = std::to_string(hashMB);
+    g_engine->set_tt_size(hashMB);
+    (void)threads; // 线程数走默认值，避免 Option API 差异
 
     if (nnuePath && strlen(nnuePath) > 0) {
         g_engine->load_network(std::filesystem::path(nnuePath));
