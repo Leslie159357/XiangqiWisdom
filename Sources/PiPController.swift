@@ -22,9 +22,9 @@ final class PiPController: NSObject, AVPictureInPictureControllerDelegate,
             NSLog("[PiP] unsupported on this device")
             return
         }
-        guard let source = AVPictureInPictureController.ContentSource(
+        let source = AVPictureInPictureController.ContentSource(
             sampleBufferDisplayLayer: displayLayer,
-            playbackDelegate: self) else { return }
+            playbackDelegate: self)
 
         controller = AVPictureInPictureController(contentSource: source)
         controller?.delegate = self
@@ -68,7 +68,7 @@ final class PiPController: NSObject, AVPictureInPictureControllerDelegate,
                                bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(buffer),
                                space: CGColorSpaceCreateDeviceRGB(),
                                bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue) {
-            let shade = CGFloat((tick % 20) / 40.0)
+            let shade = CGFloat(Double(tick % 20) / 40.0)
             ctx.setFillColor(UIColor(red: 0.10 + shade, green: 0.22, blue: 0.14, alpha: 1).cgColor)
             ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
         }
