@@ -35,16 +35,16 @@ final class YOLODetector {
             return []
         }
 
-        let count = confidence.shape[0].intValue
-        let classCount = confidence.shape.count > 1 ? confidence.shape[1].intValue : labels.count
+        let classCount = labels.count
+        let count = confidence.count / max(1, classCount)
         guard count > 0 else { return [] }
 
         var raw: [Detection] = []
         for i in 0..<count {
             var bestClass = 0
             var bestScore: Float = 0
-            for c in 0..<min(classCount, labels.count) {
-                let score = confidence[[i, c]].floatValue
+            for c in 0..<classCount {
+                let score = confidence[[NSNumber(value: i), NSNumber(value: c)]].floatValue
                 if score > bestScore {
                     bestScore = score
                     bestClass = c
@@ -52,10 +52,10 @@ final class YOLODetector {
             }
             guard Double(bestScore) >= confidenceThreshold else { continue }
 
-            let cx = coordinates[[i, 0]].doubleValue
-            let cy = coordinates[[i, 1]].doubleValue
-            let w = coordinates[[i, 2]].doubleValue
-            let h = coordinates[[i, 3]].doubleValue
+            let cx = coordinates[[NSNumber(value: i), 0]].doubleValue
+            let cy = coordinates[[NSNumber(value: i), 1]].doubleValue
+            let w = coordinates[[NSNumber(value: i), 2]].doubleValue
+            let h = coordinates[[NSNumber(value: i), 3]].doubleValue
             let rect = CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h)
             raw.append(Detection(label: labels[bestClass], confidence: bestScore, rect: rect))
         }

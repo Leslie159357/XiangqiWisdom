@@ -126,7 +126,7 @@ final class DetectionOverlayView: UIView {
     override func draw(_ rect: CGRect) {
         guard let context = UIGraphicsGetCurrentContext() else { return }
         let imageRect = aspectFitRect(for: rect)
-        context.lineWidth = 2
+        context.setLineWidth(2)
         for d in detections {
             let r = CGRect(x: imageRect.minX + d.rect.minX * imageRect.width,
                            y: imageRect.minY + d.rect.minY * imageRect.height,

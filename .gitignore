@@ -3,3 +3,4 @@ Sources/Info.plist
 *.xcworkspace
 .build/
 .DS_Store
+Vendor/
