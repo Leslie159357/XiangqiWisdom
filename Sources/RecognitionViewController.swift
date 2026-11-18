@@ -1,12 +1,15 @@
 import UIKit
 import PhotosUI
 
-/// 识别验证页：选一张棋盘截图 → 跑 BoardDetector / PieceDetector → 叠加检测框
+/// 识别验证页：选一张棋盘截图 → 跑 BoardDetector / PieceDetector → 叠加检测框 + 输出 FEN
 final class RecognitionViewController: UIViewController, PHPickerViewControllerDelegate {
     private let imageView = UIImageView()
     private let overlay = DetectionOverlayView()
     private let statusLabel = UILabel()
+    private let fenLabel = UILabel()
     private let pickButton = UIButton(type: .system)
+    private let pipButton = UIButton(type: .system)
+    private let pip = PiPController()
 
     private lazy var boardDetector = Models.board()
     private lazy var pieceDetector = Models.pieces()
@@ -28,12 +31,25 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
         statusLabel.numberOfLines = 0
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
 
+        fenLabel.text = "FEN：—"
+        fenLabel.textColor = .systemYellow
+        fenLabel.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        fenLabel.numberOfLines = 2
+        fenLabel.translatesAutoresizingMaskIntoConstraints = false
+
         pickButton.setTitle("选择棋盘截图", for: .normal)
         pickButton.setTitleColor(.white, for: .normal)
         pickButton.backgroundColor = UIColor(red: 0.16, green: 0.60, blue: 0.33, alpha: 1)
         pickButton.layer.cornerRadius = 20
         pickButton.addTarget(self, action: #selector(pickTapped), for: .touchUpInside)
         pickButton.translatesAutoresizingMaskIntoConstraints = false
+
+        pipButton.setTitle("画中画", for: .normal)
+        pipButton.setTitleColor(.white, for: .normal)
+        pipButton.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.75)
+        pipButton.layer.cornerRadius = 20
+        pipButton.addTarget(self, action: #selector(pipTapped), for: .touchUpInside)
+        pipButton.translatesAutoresizingMaskIntoConstraints = false
 
         let back = UIButton(type: .system)
         back.setTitle("‹ 返回", for: .normal)
@@ -45,7 +61,9 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
         view.addSubview(imageView)
         view.addSubview(overlay)
         view.addSubview(statusLabel)
+        view.addSubview(fenLabel)
         view.addSubview(pickButton)
+        view.addSubview(pipButton)
 
         NSLayoutConstraint.activate([
             back.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
@@ -63,12 +81,21 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
 
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            statusLabel.bottomAnchor.constraint(equalTo: pickButton.topAnchor, constant: -10),
+            statusLabel.bottomAnchor.constraint(equalTo: fenLabel.topAnchor, constant: -6),
 
-            pickButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pickButton.widthAnchor.constraint(equalToConstant: 220),
+            fenLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            fenLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            fenLabel.bottomAnchor.constraint(equalTo: pickButton.topAnchor, constant: -10),
+
+            pickButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            pickButton.widthAnchor.constraint(equalToConstant: 200),
             pickButton.heightAnchor.constraint(equalToConstant: 44),
-            pickButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            pickButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+
+            pipButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            pipButton.centerYAnchor.constraint(equalTo: pickButton.centerYAnchor),
+            pipButton.widthAnchor.constraint(equalToConstant: 96),
+            pipButton.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
 
@@ -79,6 +106,11 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
     }
 
     @objc private func backTapped() { dismiss(animated: true) }
+
+    @objc private func pipTapped() {
+        pip.attach(to: overlay)
+        pip.start()
+    }
 
     @objc private func pickTapped() {
         var config = PHPickerConfiguration()
@@ -102,16 +134,19 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
     private func run(on image: UIImage) {
         imageView.image = image
         overlay.detections = []
+        fenLabel.text = "FEN：计算中…"
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
             let boards = self.boardDetector?.detect(in: image) ?? []
             let pieces = self.pieceDetector?.detect(in: image) ?? []
             let all = boards + pieces
+            let fen = FENMapper.fen(from: all)
             DispatchQueue.main.async {
                 self.overlay.detections = all
                 let counts = Dictionary(grouping: all, by: { $0.label }).map { "\($0.key):\($0.value.count)" }
-                self.statusLabel.text = "检测到 \(all.count) 个目标\n" + counts.sorted().joined(separator: "  ")
+                self.statusLabel.text = "检测到 \(all.count) 个目标  " + counts.sorted().joined(separator: " ")
+                self.fenLabel.text = fen.map { "FEN：\($0)" } ?? "FEN：未找到棋盘（bd）"
             }
         }
     }

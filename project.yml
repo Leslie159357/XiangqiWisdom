@@ -17,6 +17,9 @@ targets:
           - "main.cpp"
           - "benchmark.cpp"
           - "universal/*"
+    dependencies:
+      - target: BroadcastExtension
+        embed: true
     info:
       path: Sources/Info.plist
       properties:
@@ -44,6 +47,25 @@ targets:
         HEADER_SEARCH_PATHS: "$(SRCROOT)/Pikafish/src"
         SWIFT_OBJC_BRIDGING_HEADER: "$(SRCROOT)/Sources/BridgingHeader.h"
         OTHER_CPLUSPLUSFLAGS: "$(inherited) -DIS_64BIT -DUSE_NEON"
+  BroadcastExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BroadcastExtension
+    info:
+      path: BroadcastExtension/Info.plist
+      properties:
+        CFBundleDisplayName: ScreenShare
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.broadcast-services-upload
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SampleHandler
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.leslie.xiangqiwisdom.broadcast
+        SWIFT_VERSION: "5.0"
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
 schemes:
   XiangqiWisdom:
     build:

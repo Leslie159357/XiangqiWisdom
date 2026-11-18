@@ -4,3 +4,4 @@ Sources/Info.plist
 .build/
 .DS_Store
 Vendor/
+BroadcastExtension/Info.plist
