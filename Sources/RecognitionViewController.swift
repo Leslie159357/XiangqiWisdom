@@ -18,6 +18,20 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
         super.viewDidLoad()
         view.backgroundColor = .black
         buildUI()
+        setupReceiver()
+    }
+
+    private var lastFrameAt: TimeInterval = 0
+
+    private func setupReceiver() {
+        BroadcastReceiver.shared.onFrame = { [weak self] image in
+            guard let self = self else { return }
+            let now = Date().timeIntervalSince1970
+            guard now - self.lastFrameAt > 0.8 else { return }
+            self.lastFrameAt = now
+            self.run(on: image)
+        }
+        BroadcastReceiver.shared.start()
     }
 
     private func buildUI() {
