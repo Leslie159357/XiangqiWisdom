@@ -60,6 +60,27 @@ enum FENMapper {
         return grid
     }
 
+    /// 云库需要的棋盘部分（不带 " w - - 0 1" 后缀）
+    static func fenBoardString(from grid: [[Character]]) -> String {
+        var rows: [String] = []
+        for r in 0..<10 {
+            var s = ""
+            var empty = 0
+            for c in 0..<9 {
+                let ch = grid[r][c]
+                if ch == " " {
+                    empty += 1
+                } else {
+                    if empty > 0 { s += "\(empty)"; empty = 0 }
+                    s += String(ch)
+                }
+            }
+            if empty > 0 { s += "\(empty)" }
+            rows.append(s)
+        }
+        return rows.joined(separator: "/") + " w"
+    }
+
     static func fen(from detections: [Detection]) -> String? {
         guard let grid = board(from: detections) else { return nil }
 

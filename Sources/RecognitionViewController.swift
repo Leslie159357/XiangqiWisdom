@@ -157,13 +157,15 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
             let all = boards + pieces
             let fen = FENMapper.fen(from: all)
             var bookText = "开局库：未命中"
+            var fenBoard: String? = nil
             if let grid = FENMapper.board(from: all),
                let key = Zobrist.shared.key(board: grid, redGo: true) {
                 if let best = OpeningBook.shared.bestMove(key: key),
                    let uci = Zobrist.shared.uciMove(vmove: best.vmove) {
                     bookText = "开局库：\(uci) · 评分 \(best.score) · \(best.win)胜\(best.draw)和\(best.lost)负"
                 } else {
-                    bookText = "开局库：该局面未收录（key \(String(key, radix: 16))）"
+                    bookText = "开局库：该局面未收录"
+                    fenBoard = FENMapper.fenBoardString(from: grid)
                 }
             }
             DispatchQueue.main.async {
@@ -172,6 +174,13 @@ final class RecognitionViewController: UIViewController, PHPickerViewControllerD
                 self.statusLabel.text = "检测到 \(all.count) 个目标  " + counts.sorted().joined(separator: " ")
                     + "\n" + bookText
                 self.fenLabel.text = fen.map { "FEN：\($0)" } ?? "FEN：未找到棋盘（bd）"
+            }
+            if let fb = fenBoard {
+                CloudBook.shared.queryAll(fen: fb) { moves in
+                    guard let best = moves.first else { return }
+                    self.statusLabel.text = (self.statusLabel.text ?? "")
+                        + "\n云库：\(best.move) · 评分 \(best.score) · 胜率 \(String(format: "%.1f", best.winrate))%"
+                }
             }
         }
     }
