@@ -52,6 +52,24 @@ final class OpeningBook {
         return result
     }
 
+    /// 局面查表：返回评分最高的着法
+    func bestMove(key: UInt64) -> (vmove: UInt64, score: Int, win: Int, draw: Int, lost: Int)? {
+        guard let db = db else { return nil }
+        var stmt: OpaquePointer?
+        let sql = "SELECT vmove, vscore, vwin, vdraw, vlost FROM bhobk WHERE cast(vkey as integer)=? AND vvalid=1 ORDER BY vscore DESC LIMIT 1"
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_int64(stmt, 1, Int64(key))
+        if sqlite3_step(stmt) == SQLITE_ROW {
+            return (UInt64(sqlite3_column_int64(stmt, 0)),
+                    Int(sqlite3_column_int(stmt, 1)),
+                    Int(sqlite3_column_int(stmt, 2)),
+                    Int(sqlite3_column_int(stmt, 3)),
+                    Int(sqlite3_column_int(stmt, 4)))
+        }
+        return nil
+    }
+
     func summary() -> String {
         guard recordCount > 0 else { return "开局库未加载" }
         let top = topEntries(limit: 3)

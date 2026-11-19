@@ -17,6 +17,7 @@ final class SettingsViewController: UIViewController, UITableViewDataSource, UIT
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 0.33, green: 0.22, blue: 0.13, alpha: 1)
         OpeningBook.shared.open()
+        Zobrist.shared.load()
 
         table.backgroundColor = .clear
         table.dataSource = self

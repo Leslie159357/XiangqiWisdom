@@ -18,6 +18,25 @@ enum FENMapper {
         return side == "r" ? ch : ch.lowercased()
     }
 
+    /// 输出 10×9 字符矩阵（空格为空位），供 Zobrist 计算
+    static func board(from detections: [Detection]) -> [[Character]]? {
+        guard let board = detections.first(where: { $0.label == "bd" }) else { return nil }
+        let rect = board.rect
+        guard rect.width > 0, rect.height > 0 else { return nil }
+
+        var grid = Array(repeating: Array(repeating: Character(" "), count: 9), count: 10)
+        for d in detections where !boardLabels.contains(d.label) {
+            guard let ch = fenChar(d.label)?.first else { continue }
+            let nx = (d.rect.midX - rect.minX) / rect.width
+            let ny = (d.rect.midY - rect.minY) / rect.height
+            guard (0...1).contains(nx), (0...1).contains(ny) else { continue }
+            let col = min(8, max(0, Int(nx * 9)))
+            let row = min(9, max(0, Int(ny * 10)))
+            if grid[row][col] == " " { grid[row][col] = ch }
+        }
+        return grid
+    }
+
     static func fen(from detections: [Detection]) -> String? {
         guard let board = detections.first(where: { $0.label == "bd" }) else { return nil }
         let rect = board.rect
