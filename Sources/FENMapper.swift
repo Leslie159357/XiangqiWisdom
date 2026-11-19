@@ -2,8 +2,14 @@ import Foundation
 import CoreGraphics
 
 /// 把检测结果映射成象棋 FEN。
-/// 前提：BoardDetector 的 `bd` 框给出棋盘区域，棋子检测框中心落在 9×10 网格。
-/// 第一版按矩形归一化投影，不做透视校正（斜视角会偏移，后续用四点单应修）。
+///
+/// 坐标系与原版 `ViewController::indexForTouchPoint:boardSize:` 对齐：
+///   格宽 = boardWidth / 8   （9 条竖线 → 8 个间隔）
+///   格高 = boardHeight / 9  （10 条横线 → 9 个间隔）
+///   col = round((x - minX) / cellW) ∈ 0..8
+///   row = round((y - minY) / cellH) ∈ 0..9
+/// 原版还会对 `bd` 框做 UIEdgeInsets 内缩；这里按 2% 近似，避免边框把
+/// 边缘棋子推到格子外。
 enum FENMapper {
     static let boardLabels: Set<String> = ["bd", "dk", "dt"]
 
@@ -18,53 +24,56 @@ enum FENMapper {
         return side == "r" ? ch : ch.lowercased()
     }
 
+    /// 棋盘内缩 + 8/9 间隔取整
+    private static func cell(row: Bool, x: CGFloat, y: CGFloat, rect: CGRect) -> Int {
+        if row {
+            let cellH = rect.height / 9
+            return min(9, max(0, Int(((y - rect.minY) / cellH).rounded())))
+        } else {
+            let cellW = rect.width / 8
+            return min(8, max(0, Int(((x - rect.minX) / cellW).rounded())))
+        }
+    }
+
+    private static func boardRect(_ rect: CGRect) -> CGRect {
+        let dx = rect.width * 0.02
+        let dy = rect.height * 0.02
+        return rect.insetBy(dx: dx, dy: dy)
+    }
+
     /// 输出 10×9 字符矩阵（空格为空位），供 Zobrist 计算
     static func board(from detections: [Detection]) -> [[Character]]? {
         guard let board = detections.first(where: { $0.label == "bd" }) else { return nil }
-        let rect = board.rect
+        let rect = boardRect(board.rect)
         guard rect.width > 0, rect.height > 0 else { return nil }
 
         var grid = Array(repeating: Array(repeating: Character(" "), count: 9), count: 10)
         for d in detections where !boardLabels.contains(d.label) {
             guard let ch = fenChar(d.label)?.first else { continue }
-            let nx = (d.rect.midX - rect.minX) / rect.width
-            let ny = (d.rect.midY - rect.minY) / rect.height
-            guard (0...1).contains(nx), (0...1).contains(ny) else { continue }
-            let col = min(8, max(0, Int(nx * 9)))
-            let row = min(9, max(0, Int(ny * 10)))
-            if grid[row][col] == " " { grid[row][col] = ch }
+            let x = d.rect.midX
+            let y = d.rect.midY
+            guard rect.contains(CGPoint(x: x, y: y)) else { continue }
+            let col = cell(row: false, x: x, y: y, rect: rect)
+            let r = cell(row: true, x: x, y: y, rect: rect)
+            if grid[r][col] == " " { grid[r][col] = ch }
         }
         return grid
     }
 
     static func fen(from detections: [Detection]) -> String? {
-        guard let board = detections.first(where: { $0.label == "bd" }) else { return nil }
-        let rect = board.rect
-        guard rect.width > 0, rect.height > 0 else { return nil }
-
-        var grid = Array(repeating: Array(repeating: "", count: 9), count: 10)
-
-        for d in detections where !boardLabels.contains(d.label) {
-            guard let ch = fenChar(d.label) else { continue }
-            let nx = (d.rect.midX - rect.minX) / rect.width
-            let ny = (d.rect.midY - rect.minY) / rect.height
-            guard (0...1).contains(nx), (0...1).contains(ny) else { continue }
-            let col = min(8, max(0, Int(nx * 9)))
-            let row = min(9, max(0, Int(ny * 10)))
-            if grid[row][col].isEmpty { grid[row][col] = ch }
-        }
+        guard let grid = board(from: detections) else { return nil }
 
         var rows: [String] = []
-        for row in 0..<10 {
+        for r in 0..<10 {
             var s = ""
             var empty = 0
-            for col in 0..<9 {
-                let ch = grid[row][col]
-                if ch.isEmpty {
+            for c in 0..<9 {
+                let ch = grid[r][c]
+                if ch == " " {
                     empty += 1
                 } else {
                     if empty > 0 { s += "\(empty)"; empty = 0 }
-                    s += ch
+                    s += String(ch)
                 }
             }
             if empty > 0 { s += "\(empty)" }

@@ -25,7 +25,7 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: 象棋智囊
-        CFBundleShortVersionString: "0.5.0"
+        CFBundleShortVersionString: "0.8.0"
         CFBundleVersion: "1"
         UILaunchScreen: {}
         NSPhotoLibraryUsageDescription: 选择棋盘截图用于本地识别，不上传
